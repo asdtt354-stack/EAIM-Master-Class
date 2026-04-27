@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EAIM Music Studio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3a;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --accent3: #5cf0a0;
+    --accent4: #fca05c;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ambient glow top */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -300px; left: 50%;
+    transform: translateX(-50%);
+    width: 900px; height: 700px;
+    background: radial-gradient(ellipse, rgba(124,92,252,0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    max-width: 780px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.3rem 0.9rem;
+    background: rgba(124,92,252,0.12);
+    border: 1px solid rgba(124,92,252,0.35);
+    border-radius: 99px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.8rem;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent3);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, var(--accent4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.05;
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: clamp(0.78rem, 2vw, 0.88rem);
+    color: var(--muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-desc {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    color: var(--text);
+    opacity: 0.75;
+    line-height: 1.9;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+
+  .divider-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ===== APP CARDS ===== */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 560px) {
+    .cards-grid { grid-template-columns: 1fr; }
+  }
+
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2rem 1.6rem;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+  }
+
+  /* Glow layer */
+  .app-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.35s;
+    border-radius: 24px;
+    pointer-events: none;
+  }
+
+  .app-card.guitar::before {
+    background: radial-gradient(ellipse at 70% 30%, rgba(124,92,252,0.15), transparent 65%);
+  }
+
+  .app-card.orchestra::before {
+    background: radial-gradient(ellipse at 70% 30%, rgba(252,160,92,0.15), transparent 65%);
+  }
+
+  .app-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.45);
+  }
+
+  .app-card:hover::before { opacity: 1; }
+
+  .app-card.guitar:hover { border-color: rgba(124,92,252,0.5); }
+  .app-card.orchestra:hover { border-color: rgba(252,160,92,0.5); }
+
+  /* Top bar */
+  .card-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .guitar .card-bar { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .orchestra .card-bar { background: linear-gradient(90deg, var(--accent4), var(--accent2)); }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-icon {
+    font-size: 2.4rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 12px rgba(124,92,252,0.4));
+  }
+
+  .orchestra .card-icon {
+    filter: drop-shadow(0 0 12px rgba(252,160,92,0.4));
+  }
+
+  .card-ver {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .card-body {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .guitar .card-title { color: var(--accent); }
+  .orchestra .card-title { color: var(--accent4); }
+
+  .card-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+  }
+
+  /* Feature chips */
+  .card-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-chip {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .guitar .feature-chip {
+    background: rgba(124,92,252,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(124,92,252,0.25);
+  }
+
+  .orchestra .feature-chip {
+    background: rgba(252,160,92,0.12);
+    color: var(--accent4);
+    border: 1px solid rgba(252,160,92,0.25);
+  }
+
+  /* CTA Button */
+  .card-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-decoration: none;
+  }
+
+  .guitar .card-cta {
+    background: linear-gradient(135deg, var(--accent), rgba(124,92,252,0.7));
+    color: white;
+  }
+
+  .orchestra .card-cta {
+    background: linear-gradient(135deg, var(--accent4), rgba(252,92,125,0.8));
+    color: white;
+  }
+
+  .card-cta:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  .cta-arrow {
+    font-size: 1rem;
+    transition: transform 0.2s;
+  }
+
+  .app-card:hover .cta-arrow { transform: translateX(4px); }
+
+  /* ===== BOTTOM INFO ===== */
+  .bottom-info {
+    text-align: center;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .info-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent3);
+  }
+
+  .copyright {
+    font-size: 0.7rem;
+    color: var(--border);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* Animated background notes */
+  .floating-notes {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .fn {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0;
+    animation: floatNote 8s infinite;
+    color: var(--accent);
+  }
+
+  @keyframes floatNote {
+    0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+    10% { opacity: 0.06; }
+    90% { opacity: 0.06; }
+    100% { opacity: 0; transform: translateY(-120px) rotate(20deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating notes decoration -->
+<div class="floating-notes">
+  <div class="fn" style="left:5%;top:70%;animation-delay:0s">♩</div>
+  <div class="fn" style="left:15%;top:80%;animation-delay:1.5s;color:var(--accent4)">♪</div>
+  <div class="fn" style="left:80%;top:75%;animation-delay:3s">♫</div>
+  <div class="fn" style="left:90%;top:60%;animation-delay:4.5s;color:var(--accent2)">♬</div>
+  <div class="fn" style="left:50%;top:85%;animation-delay:2s;color:var(--accent3)">♩</div>
+  <div class="fn" style="left:35%;top:78%;animation-delay:6s">♪</div>
+  <div class="fn" style="left:65%;top:82%;animation-delay:7s;color:var(--accent4)">♫</div>
+</div>
+
+<div class="wrapper">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">⭐ EAIM MUSIC STUDIO · 2026</div>
+    <div class="hero-logo">EAIM</div>
+    <div class="hero-sub">Emotion · Art · Interactive · Musicalization</div>
+    <p class="hero-desc">
+      누구나 음악을 연주할 수 있는 세상.<br>
+      화성압축 기술과 이조 시스템으로<br>
+      입문자도 단시간에 밴드 합주가 가능합니다.
+    </p>
+  </div>
+
+  <!-- App Cards -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">앱 선택</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Guitar App -->
+    <div class="app-card guitar" onclick="openApp('guitar')">
+      <div class="card-bar"></div>
+      <div class="card-header">
+        <span class="card-icon">🎸</span>
+        <span class="card-ver">v4.0</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">EAIM Guitar</div>
+        <p class="card-desc">
+          원곡을 업로드하면 트랙을 분리하고
+          악기별 다이어트 코드를 자동 생성합니다.
+          멀티파트 선택으로 원하는 파트만 빼고 연주하세요.
+        </p>
+        <div class="card-features">
+          <span class="feature-chip">트랙분리</span>
+          <span class="feature-chip">화성압축</span>
+          <span class="feature-chip">근음+5음</span>
+          <span class="feature-chip">마이너스원</span>
+          <span class="feature-chip">멀티파트</span>
+          <span class="feature-chip">4현 지판</span>
+        </div>
+      </div>
+      <div class="card-cta">
+        <span>🎸 에임기타 앱 열기</span>
+        <span class="cta-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- Orchestra App -->
+    <div class="app-card orchestra" onclick="openApp('orchestra')">
+      <div class="card-bar"></div>
+      <div class="card-header">
+        <span class="card-icon">🎺</span>
+        <span class="card-ver">v5.5</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">EAIM Wind Orchestra</div>
+        <p class="card-desc">
+          악기별 실시간 이조 시스템으로
+          플루트·트럼펫·색소폰·호른까지
+          한글 계이름과 핑거링을 자동으로 안내합니다.
+        </p>
+        <div class="card-features">
+          <span class="feature-chip">실시간 이조</span>
+          <span class="feature-chip">한글계이름</span>
+          <span class="feature-chip">핑거링</span>
+          <span class="feature-chip">트럼펫/클라</span>
+          <span class="feature-chip">알토색소폰</span>
+          <span class="feature-chip">프렌치호른</span>
+        </div>
+      </div>
+      <div class="card-cta">
+        <span>🎺 윈드오케스트라 열기</span>
+        <span class="cta-arrow">→</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Info -->
+  <div class="bottom-info">
+    <div class="info-row">
+      <div class="info-item"><div class="info-dot"></div>상표권 출원 중</div>
+      <div class="info-item"><div class="info-dot" style="background:var(--accent2)"></div>특허 출원 예정</div>
+      <div class="info-item"><div class="info-dot" style="background:var(--accent4)"></div>제66회 경상북도교육자료전 출품</div>
+    </div>
+    <div class="copyright">© 2026 EAIM Studio · All rights reserved</div>
+  </div>
+
+</div>
+
+<script>
+  // 앱 파일명을 실제 경로로 수정하세요
+  const APP_URLS = {
+    guitar: 'eaim_guitar_v4.html',       // 에임기타 v4 파일
+    orchestra: 'eaim_wind_orchestra.html' // 윈드오케스트라 파일
+  };
+
+  function openApp(key) {
+    const url = APP_URLS[key];
+    // 같은 폴더에 파일이 있으면 바로 이동
+    // 외부 URL이면 window.open(url, '_blank') 으로 변경
+    window.location.href = url;
+  }
+
+  // 카드 클릭 ripple 효과
+  document.querySelectorAll('.app-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      const ripple = document.createElement('div');
+      const rect = card.getBoundingClientRect();
+      ripple.style.cssText = `
+        position:absolute;
+        width:10px;height:10px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.15);
+        left:${e.clientX - rect.left - 5}px;
+        top:${e.clientY - rect.top - 5}px;
+        transform:scale(0);
+        animation:ripple 0.5s ease-out;
+        pointer-events:none;
+        z-index:10;
+      `;
+      card.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 500);
+    });
+  });
+
+  // CSS ripple animation
+  const style = document.createElement('style');
+  style.textContent = `@keyframes ripple { to { transform: scale(40); opacity: 0; } }`;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>

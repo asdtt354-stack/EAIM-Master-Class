@@ -37,20 +37,32 @@
 
   .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; font-family: 'Space Mono', monospace; }
 
-  /* ===== API KEY INPUT ===== */
-  .api-key-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; }
-  .api-key-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
-  .api-key-title { font-size: 0.85rem; font-weight: 700; }
-  .api-key-status { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 99px; }
-  .api-key-status.ok { background: rgba(92,240,160,0.15); border: 1px solid var(--accent3); color: var(--accent3); }
-  .api-key-status.empty { background: rgba(252,92,125,0.12); border: 1px solid var(--accent2); color: var(--accent2); }
-  .api-key-row { display: flex; gap: 0.6rem; }
-  .api-key-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1rem; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; outline: none; transition: border-color 0.2s; }
-  .api-key-input:focus { border-color: var(--accent); }
-  .api-key-input::placeholder { color: var(--muted); }
-  .api-key-save { padding: 0.7rem 1.2rem; border-radius: 10px; border: none; background: var(--accent); color: white; font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .api-key-save:hover { filter: brightness(1.15); }
-  .api-key-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; }
+  /* ===== API KEY MODAL ===== */
+  .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem; animation: fadeIn 0.2s ease; }
+  .modal-overlay.hidden { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; width: 100%; max-width: 460px; animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-icon { font-size: 2.5rem; text-align: center; margin-bottom: 0.8rem; }
+  .modal-title { font-size: 1.2rem; font-weight: 800; text-align: center; margin-bottom: 0.4rem; }
+  .modal-sub { font-size: 0.82rem; color: var(--muted); text-align: center; margin-bottom: 1.5rem; line-height: 1.7; }
+  .modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.1rem; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.85rem; outline: none; transition: border-color 0.2s; margin-bottom: 0.8rem; }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-input::placeholder { color: var(--muted); }
+  .modal-btn { width: 100%; padding: 0.9rem; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; font-family: 'Noto Sans KR', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 0.6rem; }
+  .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,92,252,0.4); }
+  .modal-hint { font-size: 0.72rem; color: var(--muted); text-align: center; }
+  .modal-skip { background: none; border: none; color: var(--muted); font-size: 0.78rem; cursor: pointer; display: block; margin: 0.6rem auto 0; font-family: 'Noto Sans KR', sans-serif; text-decoration: underline; }
+  .modal-skip:hover { color: var(--text); }
+  /* API key topbar */
+  .api-key-topbar { display: flex; align-items: center; gap: 0.6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.9rem; margin-bottom: 1.5rem; cursor: pointer; transition: all 0.2s; }
+  .api-key-topbar:hover { border-color: var(--accent); }
+  .api-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .api-dot.ok { background: var(--accent3); }
+  .api-dot.empty { background: var(--accent2); animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .api-topbar-text { font-size: 0.78rem; font-family: 'Space Mono', monospace; flex: 1; }
+  .api-topbar-change { font-size: 0.7rem; color: var(--accent); }
 
   /* Upload */
   .upload-zone { border: 2px dashed var(--border); border-radius: 16px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--surface); position: relative; margin-bottom: 1.5rem; }
@@ -252,23 +264,31 @@
     <div class="version-badge">v5.0 — LALAL.AI 실제 트랙분리 연동</div>
   </div>
 
-  <!-- API Key Input -->
-  <div class="section-label">LALAL.AI API 설정</div>
-  <div class="api-key-box">
-    <div class="api-key-header">
-      <span class="api-key-title">🔑 API 키 입력</span>
-      <span class="api-key-status empty" id="apiKeyStatus">미입력</span>
+  <!-- API Key Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <div class="modal-icon">🔑</div>
+      <div class="modal-title">LALAL.AI API 키 입력</div>
+      <div class="modal-sub">
+        트랙 분리 기능을 사용하려면<br>LALAL.AI API 키가 필요합니다.<br>
+        키는 브라우저에만 저장되며 외부로 전송되지 않습니다.
+      </div>
+      <input type="password" class="modal-input" id="apiKeyInput"
+        placeholder="lal_xxxxxxxxxxxxxxxxxxxxxxxx"
+        onkeydown="if(event.key==='Enter')saveApiKey()">
+      <button class="modal-btn" onclick="saveApiKey()">🎸 시작하기</button>
+      <div class="modal-hint">
+        <a href="https://www.lalal.ai/api/" target="_blank" style="color:var(--accent)">API 키 발급받기 →</a>
+      </div>
+      <button class="modal-skip" onclick="skipApiKey()">키 없이 체험 모드로 시작</button>
     </div>
-    <div class="api-key-row">
-      <input type="password" class="api-key-input" id="apiKeyInput"
-        placeholder="LALAL.AI API 키를 입력하세요 (lal_xxxxxxxx...)"
-        oninput="checkApiKey()">
-      <button class="api-key-save" onclick="saveApiKey()">저장</button>
-    </div>
-    <div class="api-key-hint">
-      🔒 키는 브라우저에만 저장되며 외부로 전송되지 않습니다 ·
-      <a href="https://www.lalal.ai/api/" target="_blank" style="color:var(--accent)">API 키 발급 →</a>
-    </div>
+  </div>
+
+  <!-- API key topbar -->
+  <div class="api-key-topbar" onclick="openModal()" id="apiKeyTopbar" style="display:none">
+    <div class="api-dot empty" id="apiDot"></div>
+    <span class="api-topbar-text" id="apiTopbarText">API 키 미입력</span>
+    <span class="api-topbar-change">변경 →</span>
   </div>
 
   <!-- Upload -->
@@ -418,45 +438,62 @@ let trackStates = {
 let masterPlaying = false;
 let masterInterval = null;
 
-// ===== API KEY =====
-function checkApiKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  const status = document.getElementById('apiKeyStatus');
-  if (val.length > 10) {
-    status.textContent = '입력됨';
-    status.className = 'api-key-status ok';
-  } else {
-    status.textContent = '미입력';
-    status.className = 'api-key-status empty';
-  }
+// ===== API KEY MODAL =====
+function openModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
 }
 
 function saveApiKey() {
   const val = document.getElementById('apiKeyInput').value.trim();
   if (!val || val.length < 10) {
-    alert('올바른 API 키를 입력해주세요.');
+    document.getElementById('apiKeyInput').style.borderColor = 'var(--accent2)';
+    setTimeout(() => document.getElementById('apiKeyInput').style.borderColor = '', 1000);
     return;
   }
   apiKey = val;
   localStorage.setItem('lalalApiKey', val);
-  checkApiKey();
-  // Enable upload
+  closeModal(true);
+}
+
+function skipApiKey() {
+  apiKey = '';
+  closeModal(false);
+}
+
+function closeModal(hasKey) {
+  document.getElementById('modalOverlay').classList.add('hidden');
   document.getElementById('uploadZone').classList.remove('disabled');
-  alert('✅ API 키가 저장됐어요! 이제 음악 파일을 업로드하세요.');
+  // Show topbar
+  const topbar = document.getElementById('apiKeyTopbar');
+  topbar.style.display = 'flex';
+  const dot = document.getElementById('apiDot');
+  const text = document.getElementById('apiTopbarText');
+  if (hasKey) {
+    dot.className = 'api-dot ok';
+    text.textContent = 'LALAL.AI 연결됨 — 실제 트랙분리 활성';
+    text.style.color = 'var(--accent3)';
+  } else {
+    dot.className = 'api-dot empty';
+    text.textContent = 'API 키 없음 — 체험 모드 (시뮬레이션)';
+    text.style.color = 'var(--muted)';
+  }
 }
 
 // Init: load saved key
 window.addEventListener('load', () => {
   if (apiKey) {
     document.getElementById('apiKeyInput').value = apiKey;
-    checkApiKey();
-    document.getElementById('uploadZone').classList.remove('disabled');
+    // 키 있으면 모달 스킵, 바로 시작
+    closeModal(true);
+  } else {
+    // 키 없으면 모달 표시
+    setTimeout(() => document.getElementById('apiKeyInput').focus(), 300);
   }
 });
 
 // ===== FILE =====
 function handleUploadClick() {
-  if (!apiKey) { alert('먼저 LALAL.AI API 키를 입력하고 저장해주세요!'); return; }
   document.getElementById('fileInput').click();
 }
 

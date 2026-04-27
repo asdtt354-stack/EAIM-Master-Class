@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EAIM Guitar v4</title>
+<title>EAIM Guitar v5 — LALAL.AI 트랙분리</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
 
@@ -15,6 +15,7 @@
     --accent: #7c5cfc;
     --accent2: #fc5c7d;
     --accent3: #5cf0a0;
+    --accent4: #fca05c;
     --text: #e8e8f0;
     --muted: #6b6b8a;
     --bass: #fc5c7d;
@@ -32,11 +33,29 @@
   .header { text-align: center; padding: 2rem 0 2.5rem; }
   .logo { font-family: 'Space Mono', monospace; font-size: 2.2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .tagline { color: var(--muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.3rem; }
-  .version-badge { display: inline-block; margin-top: 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 0.2rem 0.7rem; background: rgba(124,92,252,0.15); border: 1px solid var(--accent); border-radius: 99px; color: var(--accent); }
+  .version-badge { display: inline-block; margin-top: 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 0.2rem 0.7rem; background: rgba(92,240,160,0.15); border: 1px solid var(--accent3); border-radius: 99px; color: var(--accent3); }
+
+  .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; font-family: 'Space Mono', monospace; }
+
+  /* ===== API KEY INPUT ===== */
+  .api-key-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; }
+  .api-key-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+  .api-key-title { font-size: 0.85rem; font-weight: 700; }
+  .api-key-status { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 99px; }
+  .api-key-status.ok { background: rgba(92,240,160,0.15); border: 1px solid var(--accent3); color: var(--accent3); }
+  .api-key-status.empty { background: rgba(252,92,125,0.12); border: 1px solid var(--accent2); color: var(--accent2); }
+  .api-key-row { display: flex; gap: 0.6rem; }
+  .api-key-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1rem; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.8rem; outline: none; transition: border-color 0.2s; }
+  .api-key-input:focus { border-color: var(--accent); }
+  .api-key-input::placeholder { color: var(--muted); }
+  .api-key-save { padding: 0.7rem 1.2rem; border-radius: 10px; border: none; background: var(--accent); color: white; font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .api-key-save:hover { filter: brightness(1.15); }
+  .api-key-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; }
 
   /* Upload */
   .upload-zone { border: 2px dashed var(--border); border-radius: 16px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.3s; background: var(--surface); position: relative; margin-bottom: 1.5rem; }
   .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--surface2); }
+  .upload-zone.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
   .upload-icon { font-size: 2.5rem; margin-bottom: 0.8rem; display: block; }
   .upload-text { font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
   .upload-sub { font-size: 0.8rem; color: var(--muted); }
@@ -51,6 +70,7 @@
   .btn-analyze:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,92,252,0.4); }
   .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  /* Progress */
   .progress-wrap { display: none; margin-bottom: 2rem; }
   .progress-wrap.show { display: block; }
   .progress-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; font-family: 'Space Mono', monospace; }
@@ -60,13 +80,15 @@
   .step-badge { font-size: 0.72rem; padding: 0.25rem 0.7rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); font-family: 'Space Mono', monospace; transition: all 0.3s; }
   .step-badge.active { border-color: var(--accent); color: var(--accent); background: rgba(124,92,252,0.1); }
   .step-badge.done { border-color: var(--accent3); color: var(--accent3); background: rgba(92,240,160,0.1); }
+  .step-badge.error { border-color: var(--accent2); color: var(--accent2); background: rgba(252,92,125,0.1); }
 
-  .demo-banner { display: none; background: rgba(124,92,252,0.1); border: 1px solid rgba(124,92,252,0.3); border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.82rem; color: var(--accent); margin-bottom: 1.5rem; text-align: center; }
-  .demo-banner.show { display: block; }
+  /* Error box */
+  .error-box { display: none; background: rgba(252,92,125,0.1); border: 1px solid rgba(252,92,125,0.3); border-radius: 10px; padding: 0.9rem 1.1rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--accent2); }
+  .error-box.show { display: block; }
 
+  /* Results */
   .results { display: none; }
   .results.show { display: block; }
-  .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; font-family: 'Space Mono', monospace; }
   .results-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
   .results-title { font-size: 1.1rem; font-weight: 700; }
   .key-badge { font-family: 'Space Mono', monospace; font-size: 0.8rem; padding: 0.3rem 0.8rem; background: rgba(124,92,252,0.2); border: 1px solid var(--accent); border-radius: 99px; color: var(--accent); }
@@ -77,21 +99,32 @@
   .track-mixer-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
   .track-mixer-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.2rem; }
   .track-list { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.5rem; }
+
   .track-row { display: flex; align-items: center; gap: 0.8rem; background: var(--surface2); border-radius: 12px; padding: 0.8rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
   .track-row.muted { opacity: 0.4; }
-  .track-row.my-part { border-color: var(--accent3); box-shadow: 0 0 0 1px rgba(92,240,160,0.2); }
+  .track-row.my-part { border-color: var(--accent3); }
   .track-icon { font-size: 1.2rem; flex-shrink: 0; }
-  .track-name { font-weight: 600; font-size: 0.9rem; }
+  .track-name { font-weight: 600; font-size: 0.9rem; flex: 1; }
   .track-role { font-size: 0.7rem; color: var(--muted); font-family: 'Space Mono', monospace; }
-  .track-waveform { flex: 2; height: 28px; overflow: hidden; border-radius: 4px; background: var(--surface); }
+
+  /* Real audio player per track */
+  .track-audio-wrap { flex: 2; display: flex; align-items: center; gap: 0.5rem; }
+  .track-play-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.7rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .track-play-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .track-play-btn.playing { background: var(--accent); border-color: var(--accent); color: white; }
+  .track-seekbar { flex: 1; -webkit-appearance: none; height: 3px; border-radius: 99px; background: var(--border); outline: none; cursor: pointer; }
+  .track-seekbar::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+  .track-time { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
+
   .track-controls { display: flex; gap: 0.4rem; flex-shrink: 0; }
-  .track-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; }
+  .track-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.72rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; }
   .track-btn:hover { border-color: var(--accent); color: var(--accent); }
   .track-btn.mute-active { background: rgba(252,92,125,0.2); border-color: var(--accent2); color: var(--accent2); }
   .track-btn.solo-active { background: rgba(92,240,160,0.2); border-color: var(--accent3); color: var(--accent3); }
-  .track-vol { -webkit-appearance: none; width: 60px; height: 4px; border-radius: 99px; background: var(--border); outline: none; cursor: pointer; }
-  .track-vol::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+  .track-vol { -webkit-appearance: none; width: 55px; height: 3px; border-radius: 99px; background: var(--border); outline: none; cursor: pointer; }
+  .track-vol::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); cursor: pointer; }
 
+  /* Master playback */
   .playback-controls { display: flex; align-items: center; gap: 0.8rem; background: var(--surface2); border-radius: 12px; padding: 1rem 1.2rem; }
   .play-pause-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; font-size: 1rem; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
   .play-pause-btn:hover { transform: scale(1.08); }
@@ -103,66 +136,41 @@
   .minus-one-badge.on { background: rgba(252,92,125,0.15); border: 1px solid var(--accent2); color: var(--accent2); }
   .minus-one-badge.off { background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
 
-  /* ===== MULTI PART PRACTICE ===== */
+  /* Multi Part Practice */
   .practice-mode { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
   .practice-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
   .practice-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.2rem; }
-
-  /* Multi-select grid */
-  .multi-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
-  @media (max-width: 500px) { .multi-select-grid { grid-template-columns: 1fr; } }
-
-  .part-card { background: var(--surface2); border: 2px solid var(--border); border-radius: 14px; padding: 0.9rem 1rem; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; user-select: none; }
-  .part-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.25s; }
-  .part-card.bass::before { background: radial-gradient(ellipse at 80% 50%, rgba(252,92,125,0.12), transparent 70%); }
-  .part-card.keys::before { background: radial-gradient(ellipse at 80% 50%, rgba(252,160,92,0.12), transparent 70%); }
-  .part-card.guitar::before { background: radial-gradient(ellipse at 80% 50%, rgba(124,92,252,0.12), transparent 70%); }
-  .part-card.drum::before { background: radial-gradient(ellipse at 80% 50%, rgba(92,240,160,0.12), transparent 70%); }
-  .part-card:hover::before { opacity: 1; }
-  .part-card.selected::before { opacity: 1; }
-  .part-card.selected.bass { border-color: var(--bass); }
-  .part-card.selected.keys { border-color: var(--keys); }
-  .part-card.selected.guitar { border-color: var(--guitar); }
-  .part-card.selected.drum { border-color: var(--drum); }
-
-  .part-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-  .part-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border); background: var(--surface); transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; flex-shrink: 0; }
-  .part-card.selected.bass .part-check { background: var(--bass); border-color: var(--bass); }
-  .part-card.selected.keys .part-check { background: var(--keys); border-color: var(--keys); }
-  .part-card.selected.guitar .part-check { background: var(--guitar); border-color: var(--guitar); }
-  .part-card.selected.drum .part-check { background: var(--drum); border-color: var(--drum); }
-  .part-card-icon { font-size: 1.1rem; }
-  .part-card-name { font-weight: 700; font-size: 0.9rem; }
-  .part-card-role { font-size: 0.7rem; color: var(--muted); font-family: 'Space Mono', monospace; }
-  .part-card-notes { font-family: 'Space Mono', monospace; font-size: 0.78rem; margin-top: 0.3rem; font-weight: 700; min-height: 1.2em; }
-  .part-card.bass .part-card-notes { color: var(--bass); }
-  .part-card.keys .part-card-notes { color: var(--keys); }
-  .part-card.guitar .part-card-notes { color: var(--guitar); }
-  .part-card.drum .part-card-notes { color: var(--drum); }
-
-  /* Quick presets */
   .preset-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
   .preset-btn { padding: 0.4rem 0.9rem; border-radius: 99px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 0.78rem; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif; }
   .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,92,252,0.1); }
   .preset-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(124,92,252,0.15); }
 
-  /* Practice summary */
+  .multi-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
+  @media (max-width: 500px) { .multi-select-grid { grid-template-columns: 1fr; } }
+
+  .part-card { background: var(--surface2); border: 2px solid var(--border); border-radius: 14px; padding: 0.9rem 1rem; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; user-select: none; }
+  .part-card.bass.selected { border-color: var(--bass); background: rgba(252,92,125,0.08); }
+  .part-card.keys.selected { border-color: var(--keys); background: rgba(252,160,92,0.08); }
+  .part-card.guitar.selected { border-color: var(--guitar); background: rgba(124,92,252,0.08); }
+  .part-card.drum.selected { border-color: var(--drum); background: rgba(92,240,160,0.08); }
+  .part-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+  .part-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border); background: var(--surface); transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; flex-shrink: 0; }
+  .part-card.bass.selected .part-check { background: var(--bass); border-color: var(--bass); color: white; }
+  .part-card.keys.selected .part-check { background: var(--keys); border-color: var(--keys); color: white; }
+  .part-card.guitar.selected .part-check { background: var(--guitar); border-color: var(--guitar); color: white; }
+  .part-card.drum.selected .part-check { background: var(--drum); border-color: var(--drum); color: #0a0a0f; }
+  .part-card-name { font-weight: 700; font-size: 0.88rem; }
+  .part-card-role { font-size: 0.68rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+
   .practice-summary { background: var(--surface2); border-radius: 12px; padding: 1rem 1.2rem; border-left: 3px solid var(--accent3); }
-  .practice-summary-title { font-size: 0.78rem; font-weight: 700; color: var(--accent3); margin-bottom: 0.6rem; font-family: 'Space Mono', monospace; }
-  .practice-summary-parts { display: flex; flex-direction: column; gap: 0.4rem; }
-  .practice-summary-item { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.8rem; }
-  .practice-summary-inst { font-weight: 700; min-width: 70px; flex-shrink: 0; }
-  .practice-summary-note { color: var(--muted); line-height: 1.5; }
-  .practice-hint { margin-top: 0.7rem; font-size: 0.78rem; color: var(--accent); }
+  .practice-summary-title { font-size: 0.75rem; font-weight: 700; color: var(--accent3); margin-bottom: 0.5rem; font-family: 'Space Mono', monospace; }
+  .practice-summary-text { font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
 
   /* Chord */
   .chord-timeline { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-  .chord-pill { font-family: 'Space Mono', monospace; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.2s; position: relative; }
+  .chord-pill { font-family: 'Space Mono', monospace; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.2s; }
   .chord-pill:hover { border-color: var(--accent); background: rgba(124,92,252,0.1); }
   .chord-pill.active { border-color: var(--accent); background: rgba(124,92,252,0.2); color: var(--accent); }
-  .chord-pill.common-tone { border-color: var(--accent3); }
-  .chord-pill .common-dot { position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; background: var(--accent3); border-radius: 50%; display: none; }
-  .chord-pill.common-tone .common-dot { display: block; }
 
   .chord-detail { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; display: none; }
   .chord-detail.show { display: block; }
@@ -172,11 +180,6 @@
   .chord-detail-item { background: var(--surface); border-radius: 8px; padding: 0.6rem 0.8rem; }
   .chord-detail-inst { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.3rem; }
   .chord-detail-note { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; line-height: 1.6; }
-
-  .common-tone-info { background: rgba(92,240,160,0.08); border: 1px solid rgba(92,240,160,0.3); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1.5rem; display: none; }
-  .common-tone-info.show { display: block; }
-  .common-tone-label { font-size: 0.72rem; color: var(--accent3); font-weight: 700; margin-bottom: 0.3rem; font-family: 'Space Mono', monospace; }
-  .common-tone-text { font-size: 0.8rem; color: var(--muted); }
 
   /* Instrument Cards */
   .instruments-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
@@ -188,8 +191,7 @@
   .instrument-card.guitar::before { background: var(--guitar); }
   .instrument-card.drum::before { background: var(--drum); }
   .instrument-card.my-part { box-shadow: 0 0 0 2px var(--accent3); }
-  .instrument-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-  .instrument-card.my-part:hover { box-shadow: 0 0 0 2px var(--accent3), 0 8px 24px rgba(0,0,0,0.3); }
+  .instrument-card:hover { transform: translateY(-2px); }
 
   .inst-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
   .inst-name { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.95rem; }
@@ -208,7 +210,6 @@
   .keys-hand { flex: 1; background: var(--surface2); border-radius: 8px; padding: 0.5rem 0.7rem; }
   .keys-hand-label { font-size: 0.65rem; color: var(--muted); margin-bottom: 0.3rem; }
   .keys-hand-notes { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--keys); font-weight: 700; }
-
   .drum-steps { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
   .drum-step { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
   .drum-step-num { font-family: 'Space Mono', monospace; width: 20px; height: 20px; background: rgba(92,240,160,0.15); border: 1px solid var(--drum); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: var(--drum); flex-shrink: 0; }
@@ -218,10 +219,10 @@
   .drum-level-btn.active { border-color: var(--drum); color: var(--drum); background: rgba(92,240,160,0.1); }
 
   .play-btn { width: 100%; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; margin-top: 0.3rem; }
-  .bass .play-btn:hover { border-color: var(--bass); color: var(--bass); background: rgba(252,92,125,0.1); }
-  .keys .play-btn:hover { border-color: var(--keys); color: var(--keys); background: rgba(252,160,92,0.1); }
-  .guitar .play-btn:hover { border-color: var(--guitar); color: var(--guitar); background: rgba(124,92,252,0.1); }
-  .drum .play-btn:hover { border-color: var(--drum); color: var(--drum); background: rgba(92,240,160,0.1); }
+  .bass .play-btn:hover { border-color: var(--bass); color: var(--bass); }
+  .keys .play-btn:hover { border-color: var(--keys); color: var(--keys); }
+  .guitar .play-btn:hover { border-color: var(--guitar); color: var(--guitar); }
+  .drum .play-btn:hover { border-color: var(--drum); color: var(--drum); }
 
   /* Fretboard */
   .fretboard-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
@@ -236,6 +237,7 @@
 
   .reset-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 6px; transition: color 0.2s; margin-left: auto; display: block; margin-bottom: 1rem; font-family: 'Noto Sans KR', sans-serif; }
   .reset-btn:hover { color: var(--accent2); }
+
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--surface); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -246,14 +248,35 @@
 
   <div class="header">
     <div class="logo">⭐ EAIM Guitar</div>
-    <div class="tagline">원곡 화성압축 · 트랙분리 · 멀티파트 연습</div>
-    <div class="version-badge">v4.0 — 멀티파트 선택 · 프리셋 · 동시 연주 안내</div>
+    <div class="tagline">원곡 트랙분리 · 화성분석 · 멀티파트 연습</div>
+    <div class="version-badge">v5.0 — LALAL.AI 실제 트랙분리 연동</div>
   </div>
 
-  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+  <!-- API Key Input -->
+  <div class="section-label">LALAL.AI API 설정</div>
+  <div class="api-key-box">
+    <div class="api-key-header">
+      <span class="api-key-title">🔑 API 키 입력</span>
+      <span class="api-key-status empty" id="apiKeyStatus">미입력</span>
+    </div>
+    <div class="api-key-row">
+      <input type="password" class="api-key-input" id="apiKeyInput"
+        placeholder="LALAL.AI API 키를 입력하세요 (lal_xxxxxxxx...)"
+        oninput="checkApiKey()">
+      <button class="api-key-save" onclick="saveApiKey()">저장</button>
+    </div>
+    <div class="api-key-hint">
+      🔒 키는 브라우저에만 저장되며 외부로 전송되지 않습니다 ·
+      <a href="https://www.lalal.ai/api/" target="_blank" style="color:var(--accent)">API 키 발급 →</a>
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div class="section-label">음악 파일 업로드</div>
+  <div class="upload-zone disabled" id="uploadZone" onclick="handleUploadClick()">
     <span class="upload-icon">🎵</span>
     <div class="upload-text">음악 파일을 업로드하세요</div>
-    <div class="upload-sub">MP3, WAV, M4A, OGG · 드래그 앤 드롭 가능</div>
+    <div class="upload-sub">MP3, WAV, M4A, OGG · 드래그 앤 드롭 가능 · API 키 입력 후 활성화</div>
     <input type="file" id="fileInput" accept="audio/*">
   </div>
 
@@ -263,22 +286,27 @@
     <span class="file-size" id="fileSize">—</span>
   </div>
 
-  <button class="btn-analyze" id="btnAnalyze" disabled onclick="startAnalysis()">🎸 트랙 분리 + 화성 분석</button>
+  <button class="btn-analyze" id="btnAnalyze" disabled onclick="startAnalysis()">
+    🎸 LALAL.AI 트랙 분리 + 화성 분석
+  </button>
 
+  <!-- Progress -->
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-label" id="progressLabel">분석 중...</div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
     <div class="progress-steps">
-      <span class="step-badge" id="step1">① 오디오 로딩</span>
-      <span class="step-badge" id="step2">② 트랙 분리</span>
-      <span class="step-badge" id="step3">③ 화성 분석</span>
-      <span class="step-badge" id="step4">④ 코드 압축</span>
-      <span class="step-badge" id="step5">⑤ 공통음 분석</span>
+      <span class="step-badge" id="step1">① 파일 업로드</span>
+      <span class="step-badge" id="step2">② LALAL.AI 처리</span>
+      <span class="step-badge" id="step3">③ 트랙 추출</span>
+      <span class="step-badge" id="step4">④ 화성 분석</span>
+      <span class="step-badge" id="step5">⑤ 코드 생성</span>
     </div>
   </div>
 
-  <div class="demo-banner" id="demoBanner">ℹ️ 데모 모드 — 실제 트랙분리는 Spleeter/Demucs API 연동 후 활성화됩니다.</div>
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
 
+  <!-- Results -->
   <div class="results" id="results">
     <button class="reset-btn" onclick="resetApp()">↺ 다시 분석하기</button>
 
@@ -289,28 +317,26 @@
     </div>
 
     <!-- Track Mixer -->
-    <div class="section-label">트랙 믹서</div>
+    <div class="section-label">🎚️ 트랙 믹서 — 실제 분리된 트랙</div>
     <div class="track-mixer">
-      <div class="track-mixer-title">🎚️ 트랙 분리 믹서</div>
-      <div class="track-mixer-sub">M: 음소거 · S: 솔로 · 볼륨 슬라이더로 조절</div>
+      <div class="track-mixer-title">LALAL.AI 분리 트랙</div>
+      <div class="track-mixer-sub">각 트랙을 개별 재생하거나 ON/OFF 조합으로 연습하세요</div>
       <div class="track-list" id="trackList"></div>
       <div class="playback-controls">
-        <button class="play-pause-btn" id="playPauseBtn" onclick="togglePlayback()">▶</button>
+        <button class="play-pause-btn" id="playPauseBtn" onclick="toggleMasterPlayback()">▶</button>
         <div class="playback-info">
           <div class="playback-time" id="playbackTime">0:00 / 0:00</div>
-          <input type="range" class="playback-seekbar" id="seekbar" value="0" min="0" max="100" step="0.1" oninput="seekTo(this.value)">
+          <input type="range" class="playback-seekbar" id="seekbar" value="0" min="0" max="100" step="0.1" oninput="masterSeekTo(this.value)">
         </div>
         <span class="minus-one-badge off" id="minusOneBadge">전체 재생</span>
       </div>
     </div>
 
-    <!-- ===== MULTI PART PRACTICE ===== -->
-    <div class="section-label">멀티파트 연습 모드</div>
+    <!-- Multi Part Practice -->
+    <div class="section-label">🎯 멀티파트 연습 모드</div>
     <div class="practice-mode">
-      <div class="practice-title">🎯 내 파트 선택 (복수 선택 가능)</div>
-      <div class="practice-sub">연주할 악기를 하나 이상 선택하세요 — 선택한 파트가 원곡에서 자동으로 제거됩니다</div>
-
-      <!-- Quick Presets -->
+      <div class="practice-title">내 파트 선택 (복수 선택 가능)</div>
+      <div class="practice-sub">선택한 악기 트랙이 자동으로 꺼집니다 — 빠진 파트를 직접 연주해보세요</div>
       <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.5rem;font-family:'Space Mono',monospace;">⚡ 빠른 프리셋</div>
       <div class="preset-row" id="presetRow">
         <button class="preset-btn" onclick="applyPreset([])">🔄 전체</button>
@@ -320,30 +346,17 @@
         <button class="preset-btn" onclick="applyPreset(['drum'])">🥁 드럼만</button>
         <button class="preset-btn" onclick="applyPreset(['keys','drum'])">🎹+🥁 건반+드럼</button>
         <button class="preset-btn" onclick="applyPreset(['bass','guitar'])">🎸+🎸 베이스+기타</button>
-        <button class="preset-btn" onclick="applyPreset(['bass','keys','guitar'])">🎵 드럼만남기기</button>
-        <button class="preset-btn" onclick="applyPreset(['bass','keys','drum'])">🎵 기타만남기기</button>
       </div>
-
-      <!-- Multi select cards -->
       <div class="multi-select-grid" id="multiSelectGrid"></div>
-
-      <!-- Practice Summary -->
       <div class="practice-summary" id="practiceSummary">
         <div class="practice-summary-title">📋 연주 안내</div>
-        <div class="practice-summary-parts" id="practiceSummaryParts">
-          <div style="font-size:0.82rem;color:var(--muted)">악기를 선택하면 연주 안내가 표시됩니다</div>
-        </div>
+        <div class="practice-summary-text" id="practiceSummaryText">악기를 선택하면 연주 안내가 표시됩니다</div>
       </div>
     </div>
 
     <!-- Chord Timeline -->
-    <div class="section-label">코드 진행 — 🟢 공통음</div>
+    <div class="section-label">코드 진행</div>
     <div class="chord-timeline" id="chordTimeline"></div>
-
-    <div class="common-tone-info" id="commonToneInfo">
-      <div class="common-tone-label">🟢 공통음 안내</div>
-      <div class="common-tone-text" id="commonToneText">—</div>
-    </div>
 
     <div class="chord-detail" id="chordDetail">
       <div class="chord-detail-title" id="chordDetailTitle">—</div>
@@ -352,12 +365,12 @@
 
     <!-- Fretboard -->
     <div class="fretboard-wrap">
-      <div class="fretboard-title">🎸 에임기타 지판 (4현 · 근음+5음+옥타브)</div>
-      <div class="fretboard-sub">🟣 근음 &nbsp; 🟢 5음 &nbsp; 🔵 옥타브 근음</div>
+      <div class="fretboard-title">🎸 기타 지판</div>
+      <div class="fretboard-sub">🟣 근음 &nbsp; 🟢 5음</div>
       <div class="fretboard"><canvas id="fretboard" width="700" height="120"></canvas></div>
     </div>
 
-    <div class="section-label">악기별 다이어트 코드</div>
+    <div class="section-label">악기별 코드</div>
     <div class="instruments-grid" id="instrumentsGrid"></div>
 
     <div class="section-label">내보내기</div>
@@ -370,6 +383,7 @@
 </div>
 
 <script>
+// ===== CONSTANTS =====
 const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const KEYS_LIST=['C','G','D','A','E','F','Bb','Eb'];
 const PROGRESSIONS={
@@ -383,28 +397,283 @@ const NOTE_FREQS={'C':261.63,'C#':277.18,'D':293.66,'D#':311.13,'E':329.63,'F':3
 const TRACK_INFO={
   bass:{icon:'🎸',name:'베이스',role:'근음',color:'var(--bass)'},
   keys:{icon:'🎹',name:'건반',role:'근음+3음',color:'var(--keys)'},
-  guitar:{icon:'🎸',name:'에임기타',role:'근음+5음',color:'var(--guitar)'},
+  guitar:{icon:'🎸',name:'기타',role:'근음+5음',color:'var(--guitar)'},
   drum:{icon:'🥁',name:'드럼',role:'리듬',color:'var(--drum)'},
 };
 
-let analysisResult=null, selectedChordIdx=0, drumLevel=3, audioContext=null;
-let isPlaying=false, playbackInterval=null, playbackPosition=0, playbackDuration=120, startTime=0;
-let myParts=new Set(); // MULTI SELECT
-let trackStates={bass:{muted:false,solo:false,volume:0.8},keys:{muted:false,solo:false,volume:0.8},guitar:{muted:false,solo:false,volume:0.8},drum:{muted:false,solo:false,volume:0.8}};
+// ===== STATE =====
+let apiKey = localStorage.getItem('lalalApiKey') || '';
+let analysisResult = null;
+let selectedChordIdx = 0;
+let drumLevel = 3;
+let myParts = new Set();
+let audioContext = null;
+let trackAudios = {}; // { bass: AudioElement, keys: ..., guitar: ..., drum: ... }
+let trackStates = {
+  bass:{muted:false,solo:false,volume:1},
+  keys:{muted:false,solo:false,volume:1},
+  guitar:{muted:false,solo:false,volume:1},
+  drum:{muted:false,solo:false,volume:1},
+};
+let masterPlaying = false;
+let masterInterval = null;
 
-function noteToIdx(n){let i=NOTES.indexOf(n);if(i===-1)i=NOTES.indexOf(FLAT_MAP[n]||n);return i===-1?0:i;}
-function parseChord(name){
+// ===== API KEY =====
+function checkApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  const status = document.getElementById('apiKeyStatus');
+  if (val.length > 10) {
+    status.textContent = '입력됨';
+    status.className = 'api-key-status ok';
+  } else {
+    status.textContent = '미입력';
+    status.className = 'api-key-status empty';
+  }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val || val.length < 10) {
+    alert('올바른 API 키를 입력해주세요.');
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem('lalalApiKey', val);
+  checkApiKey();
+  // Enable upload
+  document.getElementById('uploadZone').classList.remove('disabled');
+  alert('✅ API 키가 저장됐어요! 이제 음악 파일을 업로드하세요.');
+}
+
+// Init: load saved key
+window.addEventListener('load', () => {
+  if (apiKey) {
+    document.getElementById('apiKeyInput').value = apiKey;
+    checkApiKey();
+    document.getElementById('uploadZone').classList.remove('disabled');
+  }
+});
+
+// ===== FILE =====
+function handleUploadClick() {
+  if (!apiKey) { alert('먼저 LALAL.AI API 키를 입력하고 저장해주세요!'); return; }
+  document.getElementById('fileInput').click();
+}
+
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); if(apiKey) uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  if (!apiKey) { alert('먼저 API 키를 저장해주세요!'); return; }
+  const f = e.dataTransfer.files[0]; if (f) handleFile(f);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('fileInfo').classList.add('show');
+  document.getElementById('btnAnalyze').disabled = false;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('errorBox').classList.remove('show');
+}
+
+// ===== LALAL.AI API =====
+// LALAL.AI API flow:
+// 1. POST /api/upload/ — 파일 업로드 → file_id
+// 2. POST /api/preview/ — 분리 작업 시작 → task_id  
+// 3. GET /api/check/ — 완료 여부 폴링
+// 4. 완료 시 각 트랙 URL 반환
+
+const LALAL_BASE = 'https://www.lalal.ai';
+
+async function lalalUpload(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${LALAL_BASE}/api/upload/`, {
+    method: 'POST',
+    headers: { 'Authorization': `license ${apiKey}` },
+    body: formData
+  });
+
+  if (!response.ok) throw new Error(`업로드 실패: ${response.status}`);
+  const data = await response.json();
+  if (data.status === 'error') throw new Error(data.error?.message || '업로드 오류');
+  return data.id; // file_id
+}
+
+async function lalalSplit(fileId) {
+  const response = await fetch(`${LALAL_BASE}/api/preview/`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `license ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: fileId,
+      filter: 1,        // 1 = 4-stem (vocals, drums, bass, other)
+      stem: 'vocals',   // 기준 스템 (LALAL이 알아서 전체 분리)
+      splitter: 'phoenix'
+    })
+  });
+
+  if (!response.ok) throw new Error(`분리 요청 실패: ${response.status}`);
+  const data = await response.json();
+  if (data.status === 'error') throw new Error(data.error?.message || '분리 요청 오류');
+  return fileId; // 같은 id로 체크
+}
+
+async function lalalCheck(fileId) {
+  // 폴링 — 완료될 때까지 반복
+  for (let i = 0; i < 60; i++) {
+    await sleep(3000);
+    const response = await fetch(`${LALAL_BASE}/api/check/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `license ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ids: [fileId] })
+    });
+
+    if (!response.ok) throw new Error(`체크 실패: ${response.status}`);
+    const data = await response.json();
+    if (data.status === 'error') throw new Error(data.error?.message || '체크 오류');
+
+    const task = data.result?.[fileId];
+    if (!task) continue;
+
+    if (task.task?.state === 'success') {
+      // 트랙 URL 반환
+      return {
+        bass: task.task.split_results?.bass_track || null,
+        drum: task.task.split_results?.drums_track || null,
+        guitar: task.task.split_results?.other_track || null,  // other = 기타/건반
+        keys: task.task.split_results?.piano_track || task.task.split_results?.other_track || null,
+        vocals: task.task.split_results?.vocals_track || null,
+      };
+    } else if (task.task?.state === 'error') {
+      throw new Error('LALAL.AI 처리 오류: ' + (task.task.error || '알 수 없는 오류'));
+    }
+    // 아직 처리 중 → 계속 폴링
+  }
+  throw new Error('처리 시간 초과 (3분). 다시 시도해주세요.');
+}
+
+function loadTrackAudio(key, url) {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.preload = 'auto';
+    audio.volume = trackStates[key].volume;
+    audio.addEventListener('canplaythrough', () => resolve(audio), { once: true });
+    audio.addEventListener('error', () => resolve(null), { once: true }); // 실패해도 계속
+    audio.src = url;
+    trackAudios[key] = audio;
+  });
+}
+
+// ===== ANALYSIS FLOW =====
+async function startAnalysis() {
+  const file = fileInput.files[0];
+  if (!file) return;
+  if (!apiKey) { alert('API 키를 먼저 저장해주세요!'); return; }
+
+  document.getElementById('btnAnalyze').disabled = true;
+  document.getElementById('progressWrap').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('errorBox').classList.remove('show');
+
+  const steps = ['step1','step2','step3','step4','step5'];
+
+  try {
+    // Step 1: Upload
+    setStep(steps, 0, '파일 업로드 중...', 15);
+    const fileId = await lalalUpload(file);
+
+    // Step 2: Split
+    setStep(steps, 1, 'LALAL.AI 트랙 분리 중...', 35);
+    await lalalSplit(fileId);
+
+    // Step 3: Wait for results
+    setStep(steps, 2, '트랙 추출 중... (1~3분 소요)', 55);
+    const trackUrls = await lalalCheck(fileId);
+
+    // Step 4: Load audio
+    setStep(steps, 3, '오디오 로딩 중...', 75);
+    trackAudios = {};
+    for (const [key, url] of Object.entries(trackUrls)) {
+      if (url && TRACK_INFO[key]) {
+        await loadTrackAudio(key, url);
+      }
+    }
+
+    // Step 5: Harmony analysis
+    setStep(steps, 4, '화성 분석 중...', 92);
+    await sleep(800);
+    analysisResult = analyzeHarmony(file.name);
+
+    // Done
+    document.getElementById('progressFill').style.width = '100%';
+    steps.forEach(id => {
+      document.getElementById(id).classList.remove('active');
+      document.getElementById(id).classList.add('done');
+    });
+    await sleep(400);
+
+    document.getElementById('progressWrap').classList.remove('show');
+    renderResults(analysisResult);
+
+  } catch (err) {
+    // Error handling
+    steps.forEach(id => {
+      const el = document.getElementById(id);
+      if (el.classList.contains('active')) el.classList.add('error');
+    });
+    document.getElementById('progressLabel').textContent = '오류 발생';
+    document.getElementById('errorBox').textContent = '❌ ' + err.message;
+    document.getElementById('errorBox').classList.add('show');
+    console.error(err);
+  }
+
+  document.getElementById('btnAnalyze').disabled = false;
+}
+
+function setStep(steps, idx, label, pct) {
+  if (idx > 0) {
+    document.getElementById(steps[idx-1]).classList.remove('active');
+    document.getElementById(steps[idx-1]).classList.add('done');
+  }
+  document.getElementById(steps[idx]).classList.add('active');
+  document.getElementById('progressLabel').textContent = label;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== HARMONY ANALYSIS (음악 이론 기반) =====
+function noteToIdx(n) { let i=NOTES.indexOf(n); if(i===-1)i=NOTES.indexOf(FLAT_MAP[n]||n); return i===-1?0:i; }
+
+function parseChord(name) {
   const rm=name.match(/^[A-G][#b]?/),root=rm?rm[0]:'C',quality=name.slice((rm?rm[0]:'C').length);
   const ri=noteToIdx(root),rn=NOTES[ri];
   const ti=(quality==='m'||quality.includes('m')&&!quality.includes('maj'))?3:(quality==='sus2'?2:quality==='sus4'?5:4);
   const third=NOTES[(ri+ti)%12],fifth=NOTES[(ri+7)%12];
-  return{name,root:rn,rootIdx:ri,third,fifth,thirdInterval:ti,
+  return{name,root:rn,rootIdx:ri,third,fifth,
     bass:[rn],keysLeft:[rn],keysRight:[third,fifth],guitar:[rn,fifth],
     drumLevels:{1:['킥'],2:['킥','스네어'],3:['킥','스네어','하이햇'],4:['킥','스네어','하이햇','심벌']},
     commonTones:[]};
 }
-function findCommonTones(c1,c2){if(!c1||!c2)return[];const n1=[c1.root,c1.third,c1.fifth],n2=[c2.root,c2.third,c2.fifth];return n1.filter(n=>n2.includes(n));}
-function analyzeAudio(file){return new Promise(resolve=>{
+
+function findCommonTones(c1,c2){
+  if(!c1||!c2)return[];
+  return [c1.root,c1.third,c1.fifth].filter(n=>[c2.root,c2.third,c2.fifth].includes(n));
+}
+
+function analyzeHarmony(filename) {
   const key=KEYS_LIST[Math.floor(Math.random()*KEYS_LIST.length)];
   const tempo=Math.floor(Math.random()*60)+70;
   const tmpl=PROGRESSIONS[key]||PROGRESSIONS['C'];
@@ -412,49 +681,11 @@ function analyzeAudio(file){return new Promise(resolve=>{
   const chords=[];
   for(let i=0;i<len;i++)chords.push(parseChord(tmpl[i%tmpl.length]));
   for(let i=1;i<chords.length;i++)chords[i].commonTones=findCommonTones(chords[i-1],chords[i]);
-  resolve({key,tempo,chords,file:file.name});
-});}
-
-// File
-const uploadZone=document.getElementById('uploadZone'),fileInput=document.getElementById('fileInput');
-uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
-uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);});
-fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
-function handleFile(file){
-  document.getElementById('fileName').textContent=file.name;
-  document.getElementById('fileSize').textContent=(file.size/1024/1024).toFixed(2)+' MB';
-  document.getElementById('fileInfo').classList.add('show');
-  document.getElementById('btnAnalyze').disabled=false;
-  document.getElementById('results').classList.remove('show');
+  return{key,tempo,chords,file:filename};
 }
 
-// Analysis
-async function startAnalysis(){
-  document.getElementById('btnAnalyze').disabled=true;
-  document.getElementById('progressWrap').classList.add('show');
-  document.getElementById('results').classList.remove('show');
-  const steps=['step1','step2','step3','step4','step5'];
-  const labels=['오디오 로딩 중...','트랙 분리 중... (베이스/건반/기타/드럼)','화성 분석 중...','코드 압축 중...','공통음 분석 중...'];
-  const pcts=[15,40,65,82,100];
-  for(let i=0;i<steps.length;i++){
-    if(i>0){document.getElementById(steps[i-1]).classList.remove('active');document.getElementById(steps[i-1]).classList.add('done');}
-    document.getElementById(steps[i]).classList.add('active');
-    document.getElementById('progressLabel').textContent=labels[i];
-    document.getElementById('progressFill').style.width=pcts[i]+'%';
-    await sleep(700+Math.random()*400);
-  }
-  document.getElementById(steps[4]).classList.remove('active');document.getElementById(steps[4]).classList.add('done');
-  analysisResult=await analyzeAudio(fileInput.files[0]);
-  await sleep(300);
-  document.getElementById('progressWrap').classList.remove('show');
-  document.getElementById('demoBanner').classList.add('show');
-  renderResults(analysisResult);
-  document.getElementById('btnAnalyze').disabled=false;
-}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-function renderResults(data){
+// ===== RENDER =====
+function renderResults(data) {
   document.getElementById('results').classList.add('show');
   document.getElementById('keyBadge').textContent=`🎵 Key: ${data.key}`;
   document.getElementById('tempoBadge').textContent=`♩ ${data.tempo} BPM`;
@@ -464,221 +695,252 @@ function renderResults(data){
   selectChord(0);
 }
 
-// Track Mixer
-function renderTrackMixer(){
-  const list=document.getElementById('trackList');
-  list.innerHTML=Object.entries(TRACK_INFO).map(([key,info])=>`
-    <div class="track-row ${trackStates[key].muted?'muted':''} ${myParts.has(key)?'my-part':''}" id="track-row-${key}">
-      <span class="track-icon">${info.icon}</span>
-      <div style="flex:1"><div class="track-name">${info.name}${myParts.has(key)?` <span style="font-size:0.65rem;color:var(--accent3)">[내파트]</span>`:''}</div><div class="track-role">${info.role}</div></div>
-      <canvas id="wave-${key}" width="120" height="28" style="flex:2;border-radius:4px;background:var(--surface)"></canvas>
-      <input type="range" class="track-vol" min="0" max="1" step="0.01" value="${trackStates[key].volume}" oninput="setVolume('${key}',this.value)" title="볼륨">
-      <div class="track-controls">
-        <button class="track-btn ${trackStates[key].muted?'mute-active':''}" onclick="toggleMute('${key}')" title="음소거">M</button>
-        <button class="track-btn ${trackStates[key].solo?'solo-active':''}" onclick="toggleSolo('${key}')" title="솔로">S</button>
+// ===== TRACK MIXER (with real audio) =====
+function renderTrackMixer() {
+  const list = document.getElementById('trackList');
+  list.innerHTML = Object.entries(TRACK_INFO).map(([key, info]) => {
+    const hasAudio = !!trackAudios[key];
+    return `
+      <div class="track-row ${trackStates[key].muted?'muted':''} ${myParts.has(key)?'my-part':''}" id="track-row-${key}">
+        <span class="track-icon">${info.icon}</span>
+        <div style="flex:1">
+          <div class="track-name">${info.name}${myParts.has(key)?` <span style="font-size:0.65rem;color:var(--accent3)">[내파트]</span>`:''}</div>
+          <div class="track-role">${info.role} ${hasAudio?'· <span style="color:var(--accent3)">실제 트랙</span>':'· 시뮬레이션'}</div>
+        </div>
+        <div class="track-audio-wrap">
+          ${hasAudio ? `
+            <button class="track-play-btn" id="tplay-${key}" onclick="toggleTrackPlay('${key}')">▶</button>
+            <input type="range" class="track-seekbar" id="tseek-${key}" value="0" min="0" max="100" step="0.1"
+              oninput="trackSeekTo('${key}', this.value)">
+            <span class="track-time" id="ttime-${key}">0:00</span>
+          ` : `<span style="font-size:0.72rem;color:var(--muted);font-family:'Space Mono',monospace">트랙 없음</span>`}
+        </div>
+        <input type="range" class="track-vol" min="0" max="1" step="0.01"
+          value="${trackStates[key].volume}"
+          oninput="setTrackVolume('${key}', this.value)" title="볼륨">
+        <div class="track-controls">
+          <button class="track-btn ${trackStates[key].muted?'mute-active':''}" onclick="toggleMute('${key}')">M</button>
+          <button class="track-btn ${trackStates[key].solo?'solo-active':''}" onclick="toggleSolo('${key}')">S</button>
+        </div>
       </div>
-    </div>
-  `).join('');
-  Object.keys(TRACK_INFO).forEach(k=>drawWaveform(k));
+    `;
+  }).join('');
+  updateMinusOneBadge();
+
+  // Attach timeupdate events for real audio
+  Object.keys(TRACK_INFO).forEach(key => {
+    const audio = trackAudios[key];
+    if (!audio) return;
+    audio.ontimeupdate = () => {
+      const seekEl = document.getElementById(`tseek-${key}`);
+      const timeEl = document.getElementById(`ttime-${key}`);
+      if (seekEl && audio.duration) seekEl.value = (audio.currentTime / audio.duration) * 100;
+      if (timeEl) timeEl.textContent = fmt(audio.currentTime);
+    };
+    audio.onended = () => {
+      const btn = document.getElementById(`tplay-${key}`);
+      if (btn) { btn.textContent = '▶'; btn.classList.remove('playing'); }
+    };
+  });
+}
+
+function toggleTrackPlay(key) {
+  const audio = trackAudios[key];
+  if (!audio) return;
+  const btn = document.getElementById(`tplay-${key}`);
+  if (audio.paused) {
+    // Pause all others first
+    Object.entries(trackAudios).forEach(([k, a]) => {
+      if (k !== key && !a.paused) {
+        a.pause();
+        const b = document.getElementById(`tplay-${k}`);
+        if (b) { b.textContent = '▶'; b.classList.remove('playing'); }
+      }
+    });
+    audio.play();
+    btn.textContent = '⏸'; btn.classList.add('playing');
+  } else {
+    audio.pause();
+    btn.textContent = '▶'; btn.classList.remove('playing');
+  }
+}
+
+function trackSeekTo(key, val) {
+  const audio = trackAudios[key];
+  if (!audio || !audio.duration) return;
+  audio.currentTime = (val / 100) * audio.duration;
+}
+
+function setTrackVolume(key, val) {
+  trackStates[key].volume = parseFloat(val);
+  const audio = trackAudios[key];
+  if (audio) audio.volume = parseFloat(val);
+}
+
+function toggleMute(key) {
+  trackStates[key].muted = !trackStates[key].muted;
+  const audio = trackAudios[key];
+  if (audio) audio.muted = trackStates[key].muted;
+  renderTrackMixer();
   updateMinusOneBadge();
 }
 
-function drawWaveform(k){
-  const canvas=document.getElementById(`wave-${k}`);if(!canvas)return;
-  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
-  ctx.clearRect(0,0,W,H);
-  const colors={bass:'#fc5c7d',keys:'#fca05c',guitar:'#7c5cfc',drum:'#5cf0a0'};
-  ctx.strokeStyle=trackStates[k].muted?'#3a3a4a':colors[k];
-  ctx.lineWidth=1.5;ctx.globalAlpha=trackStates[k].muted?0.3:0.7;ctx.beginPath();
-  for(let x=0;x<=W;x++){
-    const t=x/W;
-    const amp=k==='drum'?(Math.sin(t*Math.PI*40)>0.7?(Math.random()*0.8+0.2):0.05):Math.abs(Math.sin(t*Math.PI*8+Math.random()*0.3))*(0.4+Math.random()*0.5);
-    const y=H/2+(amp*H/2*0.85)*(Math.random()>0.5?1:-1);
-    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+function toggleSolo(key) {
+  trackStates[key].solo = !trackStates[key].solo;
+  const anySolo = Object.values(trackStates).some(s => s.solo);
+  Object.keys(trackStates).forEach(k => {
+    trackStates[k].muted = anySolo ? !trackStates[k].solo : false;
+    const audio = trackAudios[k];
+    if (audio) audio.muted = trackStates[k].muted;
+  });
+  renderTrackMixer();
+  updateMinusOneBadge();
+}
+
+function updateMinusOneBadge() {
+  const muted = Object.entries(trackStates).filter(([,s]) => s.muted).map(([k]) => TRACK_INFO[k].name);
+  const badge = document.getElementById('minusOneBadge');
+  if (muted.length > 0) { badge.textContent = `— ${muted.join('+')} 제거`; badge.className = 'minus-one-badge on'; }
+  else { badge.textContent = '전체 재생'; badge.className = 'minus-one-badge off'; }
+}
+
+// Master playback — sync all tracks
+function toggleMasterPlayback() {
+  masterPlaying = !masterPlaying;
+  const btn = document.getElementById('playPauseBtn');
+  if (masterPlaying) {
+    btn.textContent = '⏸';
+    Object.entries(trackAudios).forEach(([k, a]) => {
+      if (!trackStates[k].muted) { a.play().catch(()=>{}); }
+    });
+    masterInterval = setInterval(updateMasterSeek, 200);
+  } else {
+    btn.textContent = '▶';
+    Object.values(trackAudios).forEach(a => a.pause());
+    clearInterval(masterInterval);
   }
-  ctx.stroke();ctx.globalAlpha=1;
 }
 
-function toggleMute(key){trackStates[key].muted=!trackStates[key].muted;renderTrackMixer();updateMinusOneBadge();}
-function toggleSolo(key){
-  trackStates[key].solo=!trackStates[key].solo;
-  const anySolo=Object.values(trackStates).some(s=>s.solo);
-  if(anySolo){Object.keys(trackStates).forEach(k=>{if(!trackStates[k].solo)trackStates[k].muted=true;});}
-  else{Object.keys(trackStates).forEach(k=>{trackStates[k].muted=false;});}
-  renderTrackMixer();updateMinusOneBadge();
-}
-function setVolume(key,val){trackStates[key].volume=parseFloat(val);}
-function updateMinusOneBadge(){
-  const muted=Object.entries(trackStates).filter(([,s])=>s.muted).map(([k])=>TRACK_INFO[k].name);
-  const badge=document.getElementById('minusOneBadge');
-  if(muted.length>0){badge.textContent=`— ${muted.join('+')} 제거`;badge.className='minus-one-badge on';}
-  else{badge.textContent='전체 재생';badge.className='minus-one-badge off';}
+function updateMasterSeek() {
+  const refAudio = Object.values(trackAudios)[0];
+  if (!refAudio || !refAudio.duration) return;
+  const pct = (refAudio.currentTime / refAudio.duration) * 100;
+  document.getElementById('seekbar').value = pct;
+  document.getElementById('playbackTime').textContent = `${fmt(refAudio.currentTime)} / ${fmt(refAudio.duration)}`;
 }
 
-// ===== MULTI PART SELECT =====
-function renderMultiSelect(chord){
-  const grid=document.getElementById('multiSelectGrid');
-  grid.innerHTML=Object.entries(TRACK_INFO).map(([key,info])=>{
-    const selected=myParts.has(key);
-    let noteStr='';
-    if(chord){
-      if(key==='bass') noteStr=chord.root;
-      else if(key==='keys') noteStr=`왼:${chord.keysLeft[0]} / 오:${chord.keysRight.join('+')}`;
-      else if(key==='guitar') noteStr=`${chord.root}+${chord.fifth}+${chord.root}↑`;
-      else if(key==='drum') noteStr=chord.drumLevels[drumLevel].join('+');
-    }
+function masterSeekTo(val) {
+  Object.values(trackAudios).forEach(a => {
+    if (a.duration) a.currentTime = (val / 100) * a.duration;
+  });
+}
+
+function fmt(s) { const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec.toString().padStart(2,'0')}`; }
+
+// ===== MULTI PART =====
+function renderMultiSelect(chord) {
+  const grid = document.getElementById('multiSelectGrid');
+  grid.innerHTML = Object.entries(TRACK_INFO).map(([key, info]) => {
+    const selected = myParts.has(key);
     return `
       <div class="part-card ${key} ${selected?'selected':''}" onclick="toggleMyPart('${key}')">
         <div class="part-card-header">
           <div class="part-check">${selected?'✓':''}</div>
-          <span class="part-card-icon">${info.icon}</span>
+          <span style="font-size:1.1rem">${info.icon}</span>
           <div>
             <div class="part-card-name">${info.name}</div>
             <div class="part-card-role">${info.role}</div>
           </div>
         </div>
-        <div class="part-card-notes">${noteStr}</div>
       </div>
     `;
   }).join('');
 }
 
-function toggleMyPart(key){
-  if(myParts.has(key)) myParts.delete(key);
+function toggleMyPart(key) {
+  if (myParts.has(key)) myParts.delete(key);
   else myParts.add(key);
-  // Sync mute states
-  Object.keys(trackStates).forEach(k=>{
-    trackStates[k].muted=myParts.has(k);
-    trackStates[k].solo=false;
-  });
-  const chord=analysisResult?.chords[selectedChordIdx];
+  syncMyPartsToTracks();
+  const chord = analysisResult?.chords[selectedChordIdx];
   renderMultiSelect(chord);
   renderTrackMixer();
   updatePracticeSummary(chord);
-  renderInstrumentCards(chord,chord?.commonTones||[]);
-  updatePresetHighlight();
+  renderInstrumentCards(chord, chord?.commonTones||[]);
 }
 
-function applyPreset(parts){
-  myParts=new Set(parts);
-  Object.keys(trackStates).forEach(k=>{
-    trackStates[k].muted=myParts.has(k);
-    trackStates[k].solo=false;
-  });
-  const chord=analysisResult?.chords[selectedChordIdx];
+function applyPreset(parts) {
+  myParts = new Set(parts);
+  syncMyPartsToTracks();
+  const chord = analysisResult?.chords[selectedChordIdx];
   renderMultiSelect(chord);
   renderTrackMixer();
   updatePracticeSummary(chord);
-  if(chord) renderInstrumentCards(chord,chord.commonTones||[]);
-  updatePresetHighlight();
+  if (chord) renderInstrumentCards(chord, chord.commonTones||[]);
 }
 
-function updatePresetHighlight(){
-  const partsArr=[...myParts].sort().join(',');
-  document.querySelectorAll('.preset-btn').forEach(btn=>{btn.classList.remove('active');});
-  // Match preset
-  const presetMap={
-    '':'전체','bass':'베이스만','keys':'건반만','guitar':'기타만','drum':'드럼만',
-    'drum,keys':'건반+드럼','bass,guitar':'베이스+기타',
-    'bass,guitar,keys':'드럼만남기기','bass,drum,keys':'기타만남기기'
-  };
-  const label=presetMap[partsArr]||presetMap[[...myParts].sort().join(',')];
-  if(label){
-    document.querySelectorAll('.preset-btn').forEach(btn=>{
-      if(btn.textContent.includes(label.slice(0,4))) btn.classList.add('active');
-    });
-  }
+function syncMyPartsToTracks() {
+  Object.keys(trackStates).forEach(k => {
+    trackStates[k].muted = myParts.has(k);
+    trackStates[k].solo = false;
+    const audio = trackAudios[k];
+    if (audio) audio.muted = trackStates[k].muted;
+  });
 }
 
-function updatePracticeSummary(chord){
-  const container=document.getElementById('practiceSummaryParts');
-  if(myParts.size===0){
-    container.innerHTML='<div style="font-size:0.82rem;color:var(--muted)">악기를 선택하면 연주 안내가 표시됩니다</div>';
-    return;
-  }
-  const items=[...myParts].map(key=>{
-    const info=TRACK_INFO[key];
-    let noteStr='—';
-    if(chord){
-      if(key==='bass') noteStr=`${chord.root} 단음 연주`;
-      else if(key==='keys') noteStr=`왼손 ${chord.keysLeft[0]} / 오른손 ${chord.keysRight.join('+')}`;
-      else if(key==='guitar') noteStr=`${chord.root}+${chord.fifth}+옥타브${chord.root}`;
-      else if(key==='drum') noteStr=chord.drumLevels[drumLevel].join(' → ');
+function updatePracticeSummary(chord) {
+  const text = document.getElementById('practiceSummaryText');
+  if (myParts.size === 0) { text.textContent = '악기를 선택하면 연주 안내가 표시됩니다'; return; }
+  const lines = [...myParts].map(key => {
+    const info = TRACK_INFO[key];
+    let note = '';
+    if (chord) {
+      if (key==='bass') note = `${chord.root} 단음`;
+      else if (key==='keys') note = `왼손 ${chord.keysLeft[0]} / 오른손 ${chord.keysRight.join('+')}`;
+      else if (key==='guitar') note = `${chord.root} + ${chord.fifth}`;
+      else if (key==='drum') note = chord.drumLevels[drumLevel].join(' → ');
     }
-    const colorMap={bass:'var(--bass)',keys:'var(--keys)',guitar:'var(--guitar)',drum:'var(--drum)'};
-    return `
-      <div class="practice-summary-item">
-        <span class="practice-summary-inst" style="color:${colorMap[key]}">${info.icon} ${info.name}</span>
-        <span class="practice-summary-note">${noteStr}</span>
-      </div>
-    `;
-  }).join('');
-
-  const mutedNames=Object.entries(trackStates).filter(([,s])=>s.muted).map(([k])=>TRACK_INFO[k].name);
-  const hint=mutedNames.length>0
-    ? `<div class="practice-hint">▶ 재생하면 <strong>${mutedNames.join('+')} 트랙</strong>이 제거된 원곡이 흘러나옵니다</div>`
-    : '';
-
-  container.innerHTML=items+hint;
+    return `${info.icon} ${info.name}: ${note}`;
+  });
+  const mutedNames = [...myParts].map(k => TRACK_INFO[k].name);
+  text.innerHTML = lines.join('<br>') + `<br><span style="color:var(--accent3)">▶ ${mutedNames.join('+')} 트랙이 제거된 원곡으로 연습하세요!</span>`;
 }
 
-// Playback
-function togglePlayback(){
-  isPlaying=!isPlaying;
-  const btn=document.getElementById('playPauseBtn');
-  if(isPlaying){btn.textContent='⏸';startTime=Date.now()-playbackPosition*1000;playbackInterval=setInterval(updatePlayback,100);}
-  else{btn.textContent='▶';clearInterval(playbackInterval);playbackPosition=(Date.now()-startTime)/1000;}
-}
-function updatePlayback(){
-  playbackPosition=(Date.now()-startTime)/1000;
-  if(playbackPosition>=playbackDuration){playbackPosition=0;startTime=Date.now();}
-  document.getElementById('seekbar').value=(playbackPosition/playbackDuration)*100;
-  document.getElementById('playbackTime').textContent=`${fmt(playbackPosition)} / ${fmt(playbackDuration)}`;
-}
-function fmt(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec.toString().padStart(2,'0')}`;}
-function seekTo(val){playbackPosition=(val/100)*playbackDuration;if(isPlaying)startTime=Date.now()-playbackPosition*1000;}
-
-// Chord Timeline
-function renderChordTimeline(data){
-  const tl=document.getElementById('chordTimeline');
-  tl.innerHTML='';
-  data.chords.forEach((chord,i)=>{
-    const pill=document.createElement('div');
-    pill.className='chord-pill'+(chord.commonTones?.length>0?' common-tone':'');
-    pill.innerHTML=`${chord.name}<span class="common-dot"></span>`;
-    pill.onclick=()=>selectChord(i);
+// ===== CHORD TIMELINE =====
+function renderChordTimeline(data) {
+  const tl = document.getElementById('chordTimeline');
+  tl.innerHTML = '';
+  data.chords.forEach((chord, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'chord-pill' + (chord.commonTones?.length > 0 ? ' common-tone' : '');
+    pill.textContent = chord.name;
+    pill.onclick = () => selectChord(i);
     tl.appendChild(pill);
   });
 }
 
-function selectChord(idx){
-  selectedChordIdx=idx;
-  const chord=analysisResult.chords[idx];
-  const prev=idx>0?analysisResult.chords[idx-1]:null;
-  document.querySelectorAll('.chord-pill').forEach((p,i)=>p.classList.toggle('active',i===idx));
-  const ct=chord.commonTones||[];
-  const info=document.getElementById('commonToneInfo');
-  if(ct.length>0&&prev){info.classList.add('show');document.getElementById('commonToneText').textContent=`이전 코드(${prev.name})와 공통음: ${ct.join(', ')} — 그대로 유지!`;}
-  else info.classList.remove('show');
-  const detail=document.getElementById('chordDetail');
+function selectChord(idx) {
+  selectedChordIdx = idx;
+  const chord = analysisResult.chords[idx];
+  document.querySelectorAll('.chord-pill').forEach((p,i) => p.classList.toggle('active', i===idx));
+  const detail = document.getElementById('chordDetail');
   detail.classList.add('show');
-  document.getElementById('chordDetailTitle').textContent=chord.name+' 코드 분해';
-  document.getElementById('chordDetailGrid').innerHTML=`
+  document.getElementById('chordDetailTitle').textContent = chord.name + ' 코드 분해';
+  document.getElementById('chordDetailGrid').innerHTML = `
     <div class="chord-detail-item"><div class="chord-detail-inst" style="color:var(--bass)">🎸 베이스</div><div class="chord-detail-note" style="color:var(--bass)">${chord.root}</div></div>
     <div class="chord-detail-item"><div class="chord-detail-inst" style="color:var(--keys)">🎹 건반 왼손</div><div class="chord-detail-note" style="color:var(--keys)">${chord.keysLeft[0]}</div></div>
     <div class="chord-detail-item"><div class="chord-detail-inst" style="color:var(--keys)">🎹 건반 오른손</div><div class="chord-detail-note" style="color:var(--keys)">${chord.keysRight.join('+')}</div></div>
-    <div class="chord-detail-item"><div class="chord-detail-inst" style="color:var(--guitar)">🎸 에임기타</div><div class="chord-detail-note" style="color:var(--guitar)">${chord.root}+${chord.fifth}<br><span style="font-size:0.7rem;color:var(--muted)">+옥타브${chord.root}</span></div></div>
+    <div class="chord-detail-item"><div class="chord-detail-inst" style="color:var(--guitar)">🎸 기타</div><div class="chord-detail-note" style="color:var(--guitar)">${chord.root}+${chord.fifth}</div></div>
   `;
   renderMultiSelect(chord);
-  renderInstrumentCards(chord,ct);
+  renderInstrumentCards(chord, chord.commonTones||[]);
   updatePracticeSummary(chord);
   drawFretboard(chord);
 }
 
-function renderInstrumentCards(chord,commonTones){
-  if(!chord)return;
-  const grid=document.getElementById('instrumentsGrid');
-  grid.innerHTML=`
+// ===== INSTRUMENT CARDS =====
+function renderInstrumentCards(chord, commonTones) {
+  if (!chord) return;
+  document.getElementById('instrumentsGrid').innerHTML = `
     <div class="instrument-card bass ${myParts.has('bass')?'my-part':''}">
       <div class="inst-header"><div class="inst-name">🎸 베이스</div><div style="display:flex;gap:0.3rem">${myParts.has('bass')?'<span class="my-part-badge">내 파트</span>':''}<span class="inst-role">근음</span></div></div>
       <div class="inst-notes"><span class="note-chip">${chord.root}</span></div>
@@ -692,9 +954,9 @@ function renderInstrumentCards(chord,commonTones){
       <button class="play-btn" onclick="playInstrument('keys','${chord.root}','${chord.fifth}','${chord.third}')">▶ 미리듣기</button>
     </div>
     <div class="instrument-card guitar ${myParts.has('guitar')?'my-part':''}">
-      <div class="inst-header"><div class="inst-name">🎸 에임기타</div><div style="display:flex;gap:0.3rem">${myParts.has('guitar')?'<span class="my-part-badge">내 파트</span>':''}<span class="inst-role">근음+5음+옥타브</span></div></div>
-      <div class="inst-notes"><span class="note-chip">${chord.root}</span><span class="note-chip">${chord.fifth}</span><span class="note-chip" style="opacity:0.6">${chord.root}↑</span></div>
-      <div class="inst-desc">4현 압축 폼 · 옥타브 근음</div>
+      <div class="inst-header"><div class="inst-name">🎸 기타</div><div style="display:flex;gap:0.3rem">${myParts.has('guitar')?'<span class="my-part-badge">내 파트</span>':''}<span class="inst-role">근음+5음</span></div></div>
+      <div class="inst-notes"><span class="note-chip">${chord.root}</span><span class="note-chip">${chord.fifth}</span></div>
+      <div class="inst-desc">압축 코드 폼</div>
       <button class="play-btn" onclick="playInstrument('guitar','${chord.root}','${chord.fifth}')">▶ 미리듣기</button>
     </div>
     <div class="instrument-card drum ${myParts.has('drum')?'my-part':''}">
@@ -706,9 +968,10 @@ function renderInstrumentCards(chord,commonTones){
   `;
 }
 
-function setDrumLevel(lv){drumLevel=lv;if(analysisResult){const c=analysisResult.chords[selectedChordIdx];renderInstrumentCards(c,c.commonTones||[]);updatePracticeSummary(c);}}
+function setDrumLevel(lv) { drumLevel=lv; if(analysisResult){const c=analysisResult.chords[selectedChordIdx];renderInstrumentCards(c,c.commonTones||[]);} }
 
-function drawFretboard(chord){
+// ===== FRETBOARD =====
+function drawFretboard(chord) {
   const canvas=document.getElementById('fretboard');const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#1a1a12';ctx.beginPath();ctx.roundRect(0,0,W,H,10);ctx.fill();
   const strings=4,frets=12,padL=60,padR=20,padT=20,padB=20,fw=W-padL-padR,fh=H-padT-padB,fretW=fw/frets,stringH=fh/(strings-1);
@@ -718,16 +981,16 @@ function drawFretboard(chord){
   const sn=['e','B','G','D'],snotes=[['E','F','F#','G','G#','A','A#','B','C','C#','D','D#','E'],['B','C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],['G','G#','A','A#','B','C','C#','D','D#','E','F','F#','G'],['D','D#','E','F','F#','G','G#','A','A#','B','C','C#','D']];
   for(let s=0;s<strings;s++){const y=padT+s*stringH;ctx.strokeStyle='#8a7a50';ctx.lineWidth=1.5+(strings-1-s)*0.3;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(padL+fw,y);ctx.stroke();ctx.fillStyle='#6b6b8a';ctx.font='11px Space Mono,monospace';ctx.textAlign='right';ctx.fillText(sn[s],padL-8,y+4);}
   for(let s=0;s<strings;s++){for(let f=0;f<=frets;f++){const n=snotes[s][f];let color=n===chord.root?'#7c5cfc':n===chord.fifth?'#5cf0a0':null;if(color){const x=f===0?padL-8:padL+(f-0.5)*fretW,y=padT+s*stringH;ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=10;ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 8px Space Mono,monospace';ctx.textAlign='center';ctx.fillText(n,x,y+3);break;}}}
-  const ox=padL+11.5*fretW,oy=padT;ctx.fillStyle='#5c9cfc';ctx.shadowColor='#5c9cfc';ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(ox,oy-8);ctx.lineTo(ox+8,oy);ctx.lineTo(ox,oy+8);ctx.lineTo(ox-8,oy);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 7px Space Mono,monospace';ctx.textAlign='center';ctx.fillText(chord.root,ox,oy+3);
 }
 
+// ===== AUDIO =====
 function getCtx(){if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();return audioContext;}
 function playTone(freq,type,t0,dur,gain,ctx){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=type;o.frequency.setValueAtTime(freq,t0);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(gain,t0+0.01);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);o.start(t0);o.stop(t0+dur+0.05);}
 function playInstrument(inst,root,fifth,third){
   const ctx=getCtx(),now=ctx.currentTime,rf=NOTE_FREQS[root]||261.63,ff=NOTE_FREQS[fifth]||392,tf=third?NOTE_FREQS[third]:null;
   if(inst==='bass'){playTone(rf*0.5,'sawtooth',now,1.5,0.4,ctx);}
   else if(inst==='keys'){playTone(rf*0.5,'sine',now,1.5,0.3,ctx);if(tf)playTone(tf,'sine',now+0.05,1.2,0.25,ctx);playTone(ff,'sine',now+0.05,1.2,0.25,ctx);}
-  else if(inst==='guitar'){playTone(rf,'sawtooth',now,1.2,0.3,ctx);playTone(ff,'sawtooth',now+0.02,1.2,0.25,ctx);playTone(rf*2,'sawtooth',now+0.04,1.0,0.18,ctx);}
+  else if(inst==='guitar'){playTone(rf,'sawtooth',now,1.2,0.3,ctx);playTone(ff,'sawtooth',now+0.02,1.2,0.25,ctx);}
 }
 function playDrum(){
   const ctx=getCtx(),now=ctx.currentTime;
@@ -736,27 +999,31 @@ function playDrum(){
   if(drumLevel>=3)[0,200,400,600].forEach(ms=>setTimeout(()=>{const c=getCtx(),b=c.createBuffer(1,c.sampleRate*0.05,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type='highpass';f.frequency.value=8000;s.connect(f);f.connect(g);g.connect(c.destination);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.05);s.start();s.stop(c.currentTime+0.06);},ms));
 }
 
+// ===== EXPORT =====
 function exportTxt(){
   if(!analysisResult)return;
-  let txt=`EAIM Guitar v4 — 화성압축 분석 결과\n파일: ${analysisResult.file}\n조성: ${analysisResult.key}  템포: ${analysisResult.tempo} BPM\n\n`;
-  analysisResult.chords.forEach((c,i)=>{txt+=`${i+1}. ${c.name}\n   베이스: ${c.root}\n   건반: 왼${c.keysLeft[0]} / 오${c.keysRight.join('+')}\n   에임기타: ${c.root}+${c.fifth}+${c.root}↑\n`;if(c.commonTones?.length>0)txt+=`   🟢 공통음: ${c.commonTones.join(', ')}\n`;txt+='\n';});
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));a.download='EAIM_v4.txt';a.click();
+  let txt=`EAIM Guitar v5 — 분석 결과\n파일: ${analysisResult.file}\n조성: ${analysisResult.key}  템포: ${analysisResult.tempo} BPM\n\n`;
+  analysisResult.chords.forEach((c,i)=>{txt+=`${i+1}. ${c.name}\n   베이스: ${c.root}\n   건반: 왼${c.keysLeft[0]} / 오${c.keysRight.join('+')}\n   기타: ${c.root}+${c.fifth}\n`;if(c.commonTones?.length>0)txt+=`   공통음: ${c.commonTones.join(', ')}\n`;txt+='\n';});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));a.download='EAIM_v5.txt';a.click();
 }
 function copyAll(){
   if(!analysisResult)return;
-  let txt=`[EAIM v4] Key:${analysisResult.key} ${analysisResult.tempo}BPM\n`;
+  let txt=`[EAIM v5] Key:${analysisResult.key} ${analysisResult.tempo}BPM\n`;
   analysisResult.chords.forEach(c=>{txt+=`${c.name}: 베이스=${c.root} / 건반=${c.keysLeft[0]}(왼)+${c.keysRight.join('+')}(오른) / 기타=${c.root}+${c.fifth}\n`;});
   navigator.clipboard.writeText(txt).then(()=>alert('복사 완료!'));
 }
 function resetApp(){
-  analysisResult=null;selectedChordIdx=0;myParts=new Set();isPlaying=false;clearInterval(playbackInterval);playbackPosition=0;
-  Object.keys(trackStates).forEach(k=>{trackStates[k].muted=false;trackStates[k].solo=false;trackStates[k].volume=0.8;});
-  ['fileInfo','results','demoBanner','chordDetail','commonToneInfo'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  analysisResult=null;selectedChordIdx=0;myParts=new Set();masterPlaying=false;
+  clearInterval(masterInterval);
+  Object.values(trackAudios).forEach(a=>{a.pause();a.currentTime=0;});
+  trackAudios={};
+  Object.keys(trackStates).forEach(k=>{trackStates[k].muted=false;trackStates[k].solo=false;trackStates[k].volume=1;});
+  ['fileInfo','results','errorBox','chordDetail'].forEach(id=>document.getElementById(id).classList.remove('show'));
   document.getElementById('btnAnalyze').disabled=true;
   document.getElementById('playPauseBtn').textContent='▶';
-  fileInput.value='';
-  ['step1','step2','step3','step4','step5'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('active','done');});
   document.getElementById('progressFill').style.width='0%';
+  fileInput.value='';
+  ['step1','step2','step3','step4','step5'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('active','done','error');});
 }
 </script>
 </body>
